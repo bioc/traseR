@@ -1,0 +1,21 @@
+import(IRanges)
+import(GenomicRanges)
+import(BSgenome.Hsapiens.UCSC.hg19)
+## importFrom(S4Vectors,Rle)
+
+export(
+	traseR,
+	querySNP,
+	queryGene,
+	queryKeyword,
+	plotSNP,
+	plotGene,
+	plotInterval,
+	plotContext,
+	plotPvalue,
+	print.traseR
+)
+
+S3method(print,traseR)
+
+
