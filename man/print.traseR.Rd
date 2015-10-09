@@ -1,32 +1,32 @@
 \name{print.traseR}
 \alias{print.traseR}
 \title{
-	Print the outcome of SNP enrichment analyses
+	Print the outcome of taSNP enrichment analyses
 }
 \description{
-	Print the outcome of SNP enrichment analyses. Print the overall SNP enrichment and trait-specific SNP enrichment.
-	Only traits above Bonferroni correction threshold are printed.
+	Print the outcome of taSNP enrichment analyses. Print the overall taSNP enrichment and trait-specific taSNP enrichment.
 }
 
 \usage{
-	\method{print}{traseR}(x,topK=5,...)
+	\method{print}{traseR}(x,isTopK=FALSE,topK=10,...)
 }
 
 \arguments{
 	\item{x}{Object returned from \code{traseR}}
-	\item{topK}{Top number of traits are printed. Default is 5.}
+	\item{isTopK}{If isTopK is TRUE, topK traits are printed; otherwise, traits with p-value below Bonferroni correction threshold are printed. Default is FALSE.}
+	\item{topK}{Top K traits are printed. Default is 10.}
   	\item{\dots}{Other parameters to \code{print}}
 }
 
 \examples{
-	data(ASB)
+	data(taSNPDB)
 	data(Tcell)
-	x=traseR(snpdb=ASB,region=Tcell,rankby="pvalue",test.method="binomial",alternative ="greater")
+	x=traseR(snpdb=taSNPDB,region=Tcell)
 	print(x)
 }
 
 \value{
-	Print a data frame of traits ranked by pvalue
+	Print a data frame of traits ranked by p-value
 }
 
 \author{

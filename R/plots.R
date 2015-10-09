@@ -7,7 +7,7 @@ plotContext<-function(snpdb,region=NULL,keyword=NULL,pvalue=1e-3){
 	snpdb=snpdb[snpdb$p.value<=pvalue]
 	
 	if(is.null(keyword)){
-		snp=unique(as.data.frame(snpdb[,c("SNP","Context")]))
+		snp=unique(as.data.frame(snpdb[,c("SNP_ID","Context")]))
 		snp.meta=snp[,setdiff(colnames(snp),c("seqnames","start","end","strand","width"))]
 		snp=makeGRangesFromDataFrame(snp[,c("seqnames","start","end","strand")])
 		mcols(snp)=snp.meta
@@ -16,7 +16,7 @@ plotContext<-function(snpdb,region=NULL,keyword=NULL,pvalue=1e-3){
 		if(length(ind)==0){
 			stop("No match key word found in Trait!")
 		}else{
-			snp=unique(as.data.frame(snpdb[ind,c("SNP","Trait","Context")]))
+			snp=unique(as.data.frame(snpdb[ind,c("SNP_ID","Trait","Context")]))
 			snp.meta=snp[,setdiff(colnames(snp),c("seqnames","start","end","strand","width"))]
 			snp=makeGRangesFromDataFrame(snp[,c("seqnames","start","end","strand")])
 			mcols(snp)=snp.meta
@@ -171,7 +171,7 @@ plotGene<-function(snpdb,gene,ext=10000){
 	if(length(ind)==0){
 		stop("No matched gene is found!")
 	}else{
-		snp=unique(as.data.frame(snpdb[ind,c("SNP","p.value","Trait")]))
+		snp=unique(as.data.frame(snpdb[ind,c("SNP_ID","p.value","Trait")]))
 		snp.meta=snp[,setdiff(colnames(snp),c("seqnames","start","end","strand","width"))]
 		snp=makeGRangesFromDataFrame(snp[,c("seqnames","start","end","strand")])
 		mcols(snp)=snp.meta
@@ -203,15 +203,15 @@ plotGene<-function(snpdb,gene,ext=10000){
 
 	if(sum(ind1)>0 & sum(ind0)==0){
 		points(start(snp), -(log10(snp$p.value)), pch=23, cex=2, bg="red")
-		text(start(snp), -(log10(snp$p.value))-0.5, labels=c(paste(as.matrix(snp$SNP),"(",snp$Trait,")",sep="")), pos=3, offset=1,cex=1)
+		text(start(snp), -(log10(snp$p.value))-0.5, labels=c(paste(as.matrix(snp$SNP_ID),"(",snp$Trait,")",sep="")), pos=3, offset=1,cex=1)
 	}else if(sum(ind1)>0 & sum(ind0)>0){
 		points(start(snp)[ind1], -(log10(snp$p.value[ind1])), pch=23, cex=2, bg="red")
-		text(start(snp)[ind1], -(log10(snp$p.value[ind1]))-0.5, labels=c(paste(as.matrix(snp$SNP[ind1]),"(",snp$Trait[ind1],")",sep="")), pos=3, offset=1,cex=0.5)
+		text(start(snp)[ind1], -(log10(snp$p.value[ind1]))-0.5, labels=c(paste(as.matrix(snp$SNP_ID[ind1]),"(",snp$Trait[ind1],")",sep="")), pos=3, offset=1,cex=0.5)
 		points(start(snp)[ind0], maxp+1, pch=23, cex=2, bg="red")
-		text(start(snp)[ind0], maxp+0.5, labels=c(paste(as.matrix(snp$SNP[ind0]),"(",snp$Trait[ind0],")",sep="")), pos=3, offset=1,cex=1)
+		text(start(snp)[ind0], maxp+0.5, labels=c(paste(as.matrix(snp$SNP_ID[ind0]),"(",snp$Trait[ind0],")",sep="")), pos=3, offset=1,cex=1)
 	}else if(sum(ind1)==0 & sum(ind0)>0){
 		points(start(snp),1, 9, pch=23, cex=2, bg="red")
-		text(start(snp), 9-0.5, labels=c(paste(as.matrix(snp$SNP),"(",snp$Trait,")",sep="")), pos=3, offset=1,cex=1)
+		text(start(snp), 9-0.5, labels=c(paste(as.matrix(snp$SNP_ID),"(",snp$Trait,")",sep="")), pos=3, offset=1,cex=1)
 	}
 	
 	if(gene.loci$GENE_STRAND == "+"){
@@ -235,11 +235,11 @@ plotGene<-function(snpdb,gene,ext=10000){
 
 
 plotSNP<-function(snpdb,snpid,ext=10000){
-	ind=grep(snpid,snpdb$SNP)
+	ind=grep(snpid,snpdb$SNP_ID)
 	if(length(ind)==0){
 		stop(paste(snpid,"cannot be found"))	
 	}else{
-		snp=unique(as.data.frame(snpdb[ind,c("SNP","p.value","Trait")]))
+		snp=unique(as.data.frame(snpdb[ind,c("SNP_ID","p.value","Trait")]))
 		snp.meta=snp[,setdiff(colnames(snp),c("seqnames","start","end","strand","width"))]
 		snp=makeGRangesFromDataFrame(snp[,c("seqnames","start","end","strand")])
 		mcols(snp)=snp.meta
@@ -271,15 +271,15 @@ plotSNP<-function(snpdb,snpid,ext=10000){
 
 	if(sum(ind1)>0 & sum(ind0)==0){
 		points(start(snp), -(log10(snp$p.value)), pch=23, cex=2, bg="red")
-		text(start(snp), -(log10(snp$p.value))-0.5, labels=c(paste(as.matrix(snp$SNP),"(",snp$Trait,")",sep="")), pos=3, offset=1,cex=1)
+		text(start(snp), -(log10(snp$p.value))-0.5, labels=c(paste(as.matrix(snp$SNP_ID),"(",snp$Trait,")",sep="")), pos=3, offset=1,cex=1)
 	}else if(sum(ind1)>0 & sum(ind0)>0){
 		points(start(snp)[ind1], -(log10(snp$p.value[ind1])), pch=23, cex=2, bg="red")
-		text(start(snp)[ind1], -(log10(snp$p.value[ind1]))-0.5, labels=c(paste(as.matrix(snp$SNP[ind1]),"(",snp$Trait[ind1],")",sep="")), pos=3, offset=1,cex=0.5)
+		text(start(snp)[ind1], -(log10(snp$p.value[ind1]))-0.5, labels=c(paste(as.matrix(snp$SNP_ID[ind1]),"(",snp$Trait[ind1],")",sep="")), pos=3, offset=1,cex=0.5)
 		points(start(snp)[ind0], maxp+1, pch=23, cex=2, bg="red")
-		text(start(snp)[ind0], maxp+0.5, labels=c(paste(as.matrix(snp$SNP[ind0]),"(",snp$Trait[ind0],")",sep="")), pos=3, offset=1,cex=1)
+		text(start(snp)[ind0], maxp+0.5, labels=c(paste(as.matrix(snp$SNP_ID[ind0]),"(",snp$Trait[ind0],")",sep="")), pos=3, offset=1,cex=1)
 	}else if(sum(ind1)==0 & sum(ind0)>0){
 		points(start(snp),1, 9, pch=23, cex=2, bg="red")
-		text(start(snp), 9-0.5, labels=c(paste(as.matrix(snp$SNP),"(",snp$Trait,")",sep="")), pos=3, offset=1,cex=1)
+		text(start(snp), 9-0.5, labels=c(paste(as.matrix(snp$SNP_ID),"(",snp$Trait,")",sep="")), pos=3, offset=1,cex=1)
 	}
 	
 	if(gene.loci$GENE_STRAND == "+"){
@@ -308,7 +308,7 @@ plotInterval<-function(snpdb,interval,ext=10000){
 	if(length(o@subjectHits)==0)
 		stop("The query region is not overlapped with any function SNP")
 	
-	snp=unique(as.data.frame(snpdb[unique(o@subjectHits),c("SNP","p.value","Trait")]))
+	snp=unique(as.data.frame(snpdb[unique(o@subjectHits),c("SNP_ID","p.value","Trait")]))
 	snp.meta=snp[,setdiff(colnames(snp),c("seqnames","start","end","strand","width"))]
 	snp=makeGRangesFromDataFrame(snp[,c("seqnames","start","end","strand")])
 	mcols(snp)=snp.meta
@@ -338,15 +338,15 @@ plotInterval<-function(snpdb,interval,ext=10000){
 
 	if(sum(ind1)>0 & sum(ind0)==0){
 		points(start(snp), -(log10(snp$p.value)), pch=23, cex=2, bg="red")
-		text(start(snp), -(log10(snp$p.value))-0.5, labels=c(paste(as.matrix(snp$SNP),"(",snp$Trait,")",sep="")), pos=3, offset=1,cex=1)
+		text(start(snp), -(log10(snp$p.value))-0.5, labels=c(paste(as.matrix(snp$SNP_ID),"(",snp$Trait,")",sep="")), pos=3, offset=1,cex=1)
 	}else if(sum(ind1)>0 & sum(ind0)>0){
 		points(start(snp)[ind1], -(log10(snp$p.value[ind1])), pch=23, cex=2, bg="red")
-		text(start(snp)[ind1], -(log10(snp$p.value[ind1]))-0.5, labels=c(paste(as.matrix(snp$SNP[ind1]),"(",snp$Trait[ind1],")",sep="")), pos=3, offset=1,cex=0.5)
+		text(start(snp)[ind1], -(log10(snp$p.value[ind1]))-0.5, labels=c(paste(as.matrix(snp$SNP_ID[ind1]),"(",snp$Trait[ind1],")",sep="")), pos=3, offset=1,cex=0.5)
 		points(start(snp)[ind0], maxp+1, pch=23, cex=2, bg="red")
-		text(start(snp)[ind0], maxp+0.5, labels=c(paste(as.matrix(snp$SNP[ind0]),"(",snp$Trait[ind0],")",sep="")), pos=3, offset=1,cex=1)
+		text(start(snp)[ind0], maxp+0.5, labels=c(paste(as.matrix(snp$SNP_ID[ind0]),"(",snp$Trait[ind0],")",sep="")), pos=3, offset=1,cex=1)
 	}else if(sum(ind1)==0 & sum(ind0)>0){
 		points(start(snp),1, 9, pch=23, cex=2, bg="red")
-		text(start(snp), 9-0.5, labels=c(paste(as.matrix(snp$SNP),"(",snp$Trait,")",sep="")), pos=3, offset=1,cex=1)
+		text(start(snp), 9-0.5, labels=c(paste(as.matrix(snp$SNP_ID),"(",snp$Trait,")",sep="")), pos=3, offset=1,cex=1)
 	}
 	
 	for(i in 1:nrow(genes)){ 

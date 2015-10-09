@@ -12,7 +12,7 @@ Perform GWAS trait-associated SNP enrichment analyses in genomic intervals. Expl
 Package: \tab traseR\cr
 Type: \tab Package\cr
 Version: \tab 1.0\cr
-Date: \tab 2015-05-28\cr
+Date: \tab 2015-10-08\cr
 License: \tab GPL \cr
 }
 }

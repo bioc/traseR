@@ -8,7 +8,9 @@ Perform GWAS trait-associated SNP enrichment analyses in genomic intervals using
 }
 \usage{
 traseR(snpdb, region, snpdb.bg=NULL, keyword = NULL, rankby = c("pvalue", "odds.ratio"), 
-test.method = c("chisq", "binomial", "fisher"), alternative = c("greater", "less", "two.sided"), trait.threshold = 10, pvalue = 1e-3)
+test.method = c("binomial", "fisher","chisq", "nonparametric"), alternative = c("greater", "less", "two.sided"), 
+ntimes=100,nbatch=1,
+trait.threshold = 10, pvalue = 1e-3)
 }
 
 \arguments{
@@ -28,10 +30,18 @@ The keyword is used when specific trait is of interest. If \code{keyword} is spe
 Traits could be ranked by either p-value or adds.ratio based on the enrichment level of trait-associated SNPs in genomic intervals.
 }
   \item{test.method}{
-Several hypothesis testing options are provided: \code{chisq}(Chi-squared test),\code{binomial}(binomial test),\code{fisher}(Fisher's exact test)
+Several hypothesis testing options are provided: \code{binomial}(binomial test),\code{fisher}(Fisher's exact test),\code{chisq}(Chi-squared test),\code{chisq}(nonparametric test). Default is \code{binomial}(binomial test)
 }
   \item{alternative}{
 Indicate the alternative hypothesis. If \code{greater}, test if the genomic intervals are enriched in trait-associated SNPs than background. If \code{less}, test if the genomic intervals are depleted in trait-associated SNPs than background. If \code{two.sided}, test if there is difference between the enrichment of trait-associated SNPs in genomic intervals and in background.
+}
+
+  \item{ntimes}{
+The number of shuffling time for one batch. See \code{nbatch}.
+}
+
+  \item{nbatch}{
+The number of batches. The product of \code{ntimes} and \code{nbatch} is the total number of shuffling time.
 }
   \item{trait.threshold}{
 Test traits with number of SNPs more than the threshold.
@@ -53,8 +63,8 @@ The data frame \code{tb} has columns,
   \item{q.value}{Adjusted p-value from multiple testing using FDR correction}
   \item{odds.ratio}{Odds ratio calculated based on number of trait-associated SNPs in genomic intervals,
   	number of trait-associated SNPs across whole genome, genomic intervals size (bps) and genome size (bps)}
-  \item{hits}{Number of trait-associated SNPs in genomic intervals}
-  \item{SNP_Num}{Number of SNPs for specific trait}
+  \item{taSNP.hits}{Number of trait-associated SNPs in genomic intervals}
+  \item{taSNP.num}{Number of SNPs for specific trait}
 }
 
 \author{
@@ -65,12 +75,9 @@ Li Chen <li.chen@emory.edu>, Zhaohui S.Qin<zhaohui.qin@emory.edu>
 	print.traseR
 }
 \examples{
-	data(ASB)
+	data(taSNPDB)
 	data(Tcell)
-	x=traseR(snpdb=ASB,region=Tcell,rankby="pvalue",test.method="binomial",alternative ="greater")
-	print(x)
-	data(CEU)
-	x=traseR(snpdb=ASB,region=Tcell,snpdb.bg=CEU,rankby="pvalue",test.method="binomial",alternative ="greater")
+	x=traseR(snpdb=taSNPDB,region=Tcell)
 	print(x)
 }
 

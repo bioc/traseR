@@ -7,17 +7,24 @@ enrichTest<-function(params,flag){
 		if(flag){
 			tb=matrix(c(params$hits,params$nsnp-params$hits,params$region.size-params$hits,
 				params$genome.size-params$region.size-params$nsnp+params$hits),2,2)
-			rownames(tb)=c("region.in","region.out")
-			colnames(tb)=c("snp.yes","snp.no")
 		}else{
 			tb=matrix(c(params$hits1,params$hits2,params$nsnp1-params$hits1,params$nsnp2-params$hits2),2,2)
-			rownames(tb)=c("region.in","region.out")
-			colnames(tb)=c("snp.trait","snp.background")
 		}
+		rownames(tb)=c("region.in","region.out")
+		colnames(tb)=c("taSNPs","non-taSNPs")
 		
 		odds.ratio=((1+tb[1,1])/(1+tb[1,ncol(tb)]))/((1+tb[nrow(tb),1])/(1+tb[nrow(tb),ncol(tb)]))	
-
-		if(params$test.method=="chisq"){
+		
+		
+		if(params$test.method=="nonparametric"){	
+			if(params$alternative=="greater"){
+				pvalue=sum(params$hits<=params$crit)/params$nbatch/params$ntimes
+			}else if(params$alternative=="less"){
+				pvalue=sum(params$hits>=params$crit)/params$nbatch/params$ntimes
+			}else{
+				stop("nonparametric test only support one.sided test!")
+			}
+		}else if(params$test.method=="chisq"){
 			a=chisq.test(tb)
 			pvalue=a$p.value
 		}else if(params$test.method=="binomial"){
@@ -49,8 +56,9 @@ enrichTest<-function(params,flag){
 
 traseR<-function(snpdb,region,snpdb.bg=NULL,keyword=NULL,
 	rankby=c("pvalue","odds.ratio"),	
-	test.method=c("chisq","binomial","fisher"),
+	test.method=c("binomial","fisher","chisq","nonparametric"),
 	alternative = c("greater","less","two.sided"),
+	ntimes=100, nbatch=1,
 	trait.threshold=10,pvalue=1e-3){
 	
 	test.method=match.arg(test.method)
@@ -74,10 +82,11 @@ traseR<-function(snpdb,region,snpdb.bg=NULL,keyword=NULL,
 			stop("Interval colnames should be chr,start,end!")
 		region=makeGRangesFromDataFrame(region)
 	}
+	
 	seqlevel=c(paste("chr",1:22,sep=""),"chrX")
 	region=region[!is.na(match(seqnames(region),seqlevel))]
 	nregion=length(region)
-	region.size=sum(end(region)-start(region))
+	region.size=sum(as.numeric(end(region))-as.numeric(start(region)))
 
 	### region size and hg19 genome size
 	seqlength=seqlengths(BSgenome.Hsapiens.UCSC.hg19)
@@ -86,7 +95,7 @@ traseR<-function(snpdb,region,snpdb.bg=NULL,keyword=NULL,
 	
 	
 	### load SNP database in NHGRI format,calculate overlap with query region
-	snp=unique(as.data.frame(snpdb[,c("SNP","Trait")]))
+	snp=unique(as.data.frame(snpdb[,c("SNP_ID","Trait")]))
 	snp.meta=snp[,setdiff(colnames(snp),c("seqnames","start","end","strand","width"))]
 	snp=makeGRangesFromDataFrame(snp[,c("seqnames","start","end","strand")])
 	mcols(snp)=snp.meta
@@ -109,7 +118,7 @@ traseR<-function(snpdb,region,snpdb.bg=NULL,keyword=NULL,
 	if(allhits==0){
 		stop("Overall SNPs are not overlapped with any genomic intervals!")
 	}
-	nsnp=length(unique(snp$SNP))
+	nsnp=length(unique(snp$SNP_ID))
 	tt=snp[unique(o@subjectHits)]
 	ntraits=length(traits)
 	
@@ -120,12 +129,12 @@ traseR<-function(snpdb,region,snpdb.bg=NULL,keyword=NULL,
 	
 	### Calculate background SNP overlap
 	if(!flag){
- 		ind=match(snpdb.bg$SNP,snp$SNP)
+ 		ind=match(snpdb.bg$SNP_ID,snp$SNP_ID)
 		snp.bg=unique(snpdb.bg[is.na(ind)])
 		end(snp.bg)=end(snp.bg)+1
 		o=findOverlaps(region,snp.bg)	
 		allhits.bg=length(unique(o@subjectHits))
-		nsnp.bg=length(unique(snp.bg$SNP))
+		nsnp.bg=length(unique(snp.bg$SNP_ID))
 	}
 
 
@@ -135,29 +144,66 @@ traseR<-function(snpdb,region,snpdb.bg=NULL,keyword=NULL,
 	params$genome.size=genome.size
 	params$test.method=test.method
 	params$alternative=alternative
+	
+	
 	### performance criteria
 	pvalues=odds.ratios=hits=snpnums=rep(-1,ntraits)
-	
+	booleans=olist=list()
+	crit=numeric(ntimes*nbatch)
 
+	
+	### if it is nonparametric test
+	if(test.method=="nonparametric"){
+		len.order=seqlength[match(as.matrix(seqnames(region)),seqlevel)]
+		len.order=rep(len.order,ntimes)
+		rchr=rep(as.matrix(seqnames(region)),ntimes)
+		region.width=end(region)-start(region)
+		region.width=rep(region.width,ntimes)
+		for(i in seq_len(nbatch)){
+			rstart=floor((len.order-region.width)*runif(length(len.order)))
+			rend=rstart+region.width		
+			region.permute=GRanges(seqnames = Rle(rchr), ranges = IRanges(start=rstart,end=rend))
+			o=findOverlaps(region.permute,snp)
+			for(j in seq_len(ntimes)){
+				booleans[[(i-1)*ntimes+j]]=o@queryhits<=j*nregion & o@queryhits>=(j-1)*nregion
+				crit[(i-1)*ntimes+j]=length(unique(o@subjectHits[booleans[[(i-1)*ntimes+j]]]))
+			}
+			olist[[i]]=o
+		}
+		params$ntimes=ntimes
+		params$nbatch=nbatch
+		params$booleans=booleans
+		params$crit=crit
+	}
+	
 	if(flag){
 		### test overall trait-associated SNP enrichment
 		params$nsnp=nsnp
 		params$hits=allhits
 		b=enrichTest(params,flag)
-		tb.all=data.frame(Trait="All",p.value=b$pvalue,odds.ratio=b$odds.ratio,hits=allhits,SNP_Num=nsnp)
+		tb.all=data.frame(Trait="All",p.value=b$pvalue,odds.ratio=b$odds.ratio,hits=allhits,taSNP.num=nsnp)
+		colnames(tb.all)=c("Trait","p.value","odds.ratio","taSNP.hits","taSNP.num")
 		rownames(tb.all)=NULL
 		for(i in seq_len(ntraits)){
 			hits[i]=sum(tt$"Trait"==traits[i])
 			snpnums[i]=sum(snp$"Trait"==traits[i])
 			params$nsnp=snpnums[i]
 			params$hits=hits[i]
+			if(test.method=="nonparametric"){
+				for(j in seq_len(nbatch)){
+					for(k in seq_len(ntimes)){
+						crit[(j-1)*ntimes+k]=length(unique(  olist[[j]]@subjectHits[ booleans[[(j-1)*ntimes+k]] & snp$Trait[olist[[j]]@subjectHits]==traits[i] ]   ))
+					}
+				}
+				params$crit=crit
+			}
 			b=enrichTest(params,flag)
 			pvalues[i]=b$pvalue
 			odds.ratios[i]=b$odds.ratio
 		}
 		qvalues=p.adjust(pvalues,"fdr")
 		tb=data.frame(traits,pvalues,qvalues,odds.ratios,hits,snpnums)
-		colnames(tb)=c("Trait","p.value","q.value","odds.ratio","hits","SNP_Num")
+		colnames(tb)=c("Trait","p.value","q.value","odds.ratio","taSNP.hits","taSNP.num")
 		rownames(tb)=NULL
 	
 	}else{
@@ -168,7 +214,8 @@ traseR<-function(snpdb,region,snpdb.bg=NULL,keyword=NULL,
 		params$nsnp2=nsnp.bg
 		params$hits2=allhits.bg
 		b=enrichTest(params,flag)
-		tb.all=data.frame(Trait="All",p.value=b$pvalue,odds.ratio=b$odds.ratio,hits=allhits,SNP_Num=nsnp)
+		tb.all=data.frame(Trait="All",p.value=b$pvalue,odds.ratio=b$odds.ratio,hits=allhits,taSNP.num=nsnp)
+		colnames(tb.all)=c("Trait","p.value","odds.ratio","taSNP.hits","taSNP.num")
 		rownames(tb.all)=NULL
 		
 		### trait-specific SNP enrichment test
@@ -179,13 +226,21 @@ traseR<-function(snpdb,region,snpdb.bg=NULL,keyword=NULL,
 			params$hits1=hits[i]
 			params$nsnp2=nsnp.bg
 			params$hits2=allhits.bg
+			if(test.method=="nonparametric"){
+				for(j in seq_len(nbatch)){
+					for(k in seq_len(ntimes)){
+						crit[(j-1)*ntimes+k]=length(unique(  olist[[j]]@subjectHits[ booleans[[(j-1)*ntimes+k]] & snp$Trait[olist[[j]]@subjectHits]==traits[i] ]   ))
+					}
+				}
+				params$crit=crit
+			}
 			b=enrichTest(params,flag)
 			pvalues[i]=b$pvalue
 			odds.ratios[i]=b$odds.ratio
 		}
 		qvalues=p.adjust(pvalues,"fdr")
 		tb=data.frame(traits,pvalues,qvalues,odds.ratios,hits,snpnums)
-		colnames(tb)=c("Trait","p.value","q.value","odds.ratio","hits","SNP_Num")
+		colnames(tb)=c("Trait","p.value","q.value","odds.ratio","taSNP.hits","taSNP.num")
 		rownames(tb)=NULL
 	}
 	
@@ -205,18 +260,23 @@ traseR<-function(snpdb,region,snpdb.bg=NULL,keyword=NULL,
 ### print the overall SNP enrichment 
 ### print the trait-specific SNP enrichment above bonferroni correction threshold
 
-print.traseR<-function(x,topK=5,...){
+print.traseR<-function(x,isTopK=FALSE,topK=10,...){
 	message("There are ",x$ntraits," traits in the test.")
 	message("The overall functional SNP enrichment test results are:")
 	print(x$tb.all)
-	if(sum(x$tb$p.value<0.05)>topK){
-		message(paste("TopK",topK,"trait-associated SNP enrichment test results are:"))
-		print(x$tb[x$tb$p.value<0.05/x$ntraits,][seq_len(topK),])
+	message("The trait-associated SNP enrichment test results are:")
+	if(isTopK){
+		print(x$tb[seq_len(topK),])
 	}else{
-		message("The trait-associated SNP enrichment test results are:")
 		print(x$tb[x$tb$p.value<0.05/x$ntraits,])
 	}
 }
+
+
+
+
+
+
 
 
 

@@ -14,7 +14,7 @@ data(CEU)
 
 \value{
 	The data frame \code{CEU} contains three columns,
-	\item{SNP}{SNP rs number}
+	\item{SNP_ID}{SNP rs number}
 	\item{seqnames}{Chromosome number associated with rs number}
 	\item{ranges}{Chromosomal position, in base pairs, associated with rs number}
 }

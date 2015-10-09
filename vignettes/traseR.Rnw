@@ -23,39 +23,32 @@
 \tableofcontents
 
 %% abstract
+
+
 \begin{abstract}
 This vignette introduces the use of {\tt traseR} 
 ({\bf TR}ait-{\bf A}ssociated  SNP{\bf E}n{\bf R}ichment analyses,
 which is designed to provide quantitative assessment whether a selected genomic interval(s) is likely to be functionally connected with certain traits or diseases. 
+{\tt traseR} consists of several modules, all written in R, to perform hypothesis testing, exploration and visualization of trait-associated SNPs(taSNPs). It also assembles the up-to-date taSNPs from dbGaP and NHGRI, SNPs from 1000 Genome Project CEU population with linkage disequilibrium greater than 0.8 within 100 kb of taSNPs, and all SNPs of CEU population from HapMap project into its built-in database, which could be directly loaded when performing analyses. 
 \end{abstract}
 
 %% introduction
 \section{Introduction}
-Genome-wide association study (GWAS) have successful identified many sequence variants that are significantly associated with common disease and traits.  Tens of thousands of such trait-associated SNPs have already been cataloged which we believe is a great resource for genomic research. However, such a resource is currently underutilized. In this study, we show the collection of trait-associated SNPs can be exploited to indicate whether a selected genomic interval(s) is likely to be functionally connected with certain traits or diseases. A R Bioconductor package named {\tt traseR}  has been developed to carry out such analyses.
+Genome-wide association study (GWAS) have successful identified many sequence variants that are significantly associated with common diseases and traits. Tens of thousands of such trait-associated SNPs have already been cataloged which we believe is a great resource for genomic research. However, no tools existing utilizes those resources in a comprehensive and convenient way. In this study, we show the collection of taSNPs can be exploited to indicate whether a selected genomic interval(s) is likely to be functionally connected with certain traits or diseases. A R Bioconductor package named {\tt traseR}  has been developed to carry out such analyses.
 
 \section{Data collection}
-Before using {\tt traseR}, we need to collect data from public resources. Common public SNP databases include Association Result Browser, HapMap and 1000 Genome.
+ One great feature of {\tt traseR} is the built-in database that collects various public SNP resources. Common public SNP databases include Association Result Browser, HapMap and 1000 Genome. We briefly introduce the procedures to process those public available SNP resources 
 
-\subsection{Retrieve SNPs from HapMap}
-We download all genotype files in CEU population from the site,
-(\url{http://hapmap.ncbi.nlm.nih.gov/downloads/genotypes/latest/forward/non-redundant/ })	
-The site contains merged phase I+II and III HapMap genotype files. We treat all alleles in the genotype files as SNPs for CEU population, which are expressed in the forward strand relative to the reference genome sequence. There are totally 4,029,840 variants excluding variants on Y chromosome, which could serve as background in hypothesis testing. Since all genotype files are in text format, we simply include all SNPs in auto chromosome and chromosome X into package built-in GRanges subject CEU.
 
-\subsection{Retrieve linkage SNPs from 1000 Genome}
-We first download all vcf files from
-(\url{ftp://share.sph.umich.edu/1000genomes/fullProject/2012.03.14/}) that contains all genetic variants information. Then, two steps are used to find linkage disequilibrium SNPs >0.8 and located within 100kb of trSNPs. Firstly, we use vcfools to convert the vcf file format to PLINK format. Then we use PLINK to call the LD SNPs by specifying options that limit the linkage disequilibrium SNPs >0.8 (--ld-window-r2 0.8) and within 100kb of trait-associated SNP (--ld-window-kb 100). All LD SNPs are inter-chromosome (--inter-chr -). The detailed commands are listed below,\\
-\texttt{vcftools --vcf  vcf.file  --out plink.file --plink plink --file plink.file --r2 --inter-chr --ld-snp-list snps.txt --ld-window-r2 0.8 --ld-window-kb 100 --out output.file --noweb}\\
-Finally, we have 90700 SNP-trait associations and 78247 unique linkage disequilibrium trait-associated SNP. We also build  linkage disequilibrium trait-associated SNP into another GRanges object  ARBLD, which could be loaded into R console by typing \texttt{data(ARBLD)}
-
-\subsection{Retrieve trait-associated SNPs}
+\subsection{Obtain taSNPs}
 Association Results Browser
-(\url{http://www.ncbi.nlm.nih.gov/projects/gapplusprev/sgap_plus.htm}) combines identified trSNPs from dbGaP and NHGRI, which together provide 44,078 SNP-trait associations, 30,553 unique trSNPs and 573 unique traits. This resource has been built into GRanges object ARB and could be loaded into R console by typing \texttt{data(ARB)}.
+(\url{http://www.ncbi.nlm.nih.gov/projects/gapplusprev/sgap_plus.htm}) combines identified taSNPs from dbGaP and NHGRI, which together provide 44,078 SNP-trait associations, 30,553 unique taSNPs and 573 unique traits. This resource has been built into GRanges object \texttt{taSNPDB} and could be loaded into R console by typing \texttt{data(taSNPDB)}.
 
 {\tt traseR} need to specify the collection of trait-associated SNPs in particular format
 before we carry out enrichment analyses. The format starts with the columns,
 \begin{enumerate}
 \item Trait: Description of disease/trait examined in the study
-\item  SNP: SNP rs number
+\item SNP\_ID: SNP rs number
 \item p.value: GWAS reported p-values
 \item seqnames: Chromosome number associated with rs number
 \item ranges: Chromosomal position, in base pairs, associated with rs number
@@ -67,91 +60,91 @@ before we carry out enrichment analyses. The format starts with the columns,
 \end{enumerate}
 Currently, the {\tt traseR} package automatically synchronize trait-associated SNPs from 
 Association Results Browser, which collects up-to-date GWAS results from dbGaP 
-NHGRI GWAS catalog. The sample data could be loaded in the following way,
-<<>>=
-library(traseR)
-data(ASB)
-@
-In current collection, there are totally 573 traits and 30,553 SNPs in the compendium.
+NHGRI GWAS catalog.
 
-\subsection{Obtain linkage disequilibrium SNPs for trait-associated SNPs}
-We obtain all linkage disequilibrium (LD)  (>0.8) within 100kb SNPs for trait-associated SNPs. Firstly, we download all VCF files
-for European population from 1000 Genome project. The VCF file s a text file format for storing marker and genotype data,
- encoding data for single nucleotide variants. By using a combination of {\tt vcftools} and {\tt PLINK}, we successfully identify
- all SNPs with linkage disequilibrium (>0.8) SNPs for 30,553 trait-associated SNPs. Those SNPs could be served as the 
- extension version of trait-associated SNPs in hypothesis testing. The format of LD SNPs are,
+
+\subsection{Obtain linkage disequilibrium taSNPs from 1000 Genome}
+We first download all vcf files from
+(\url{ftp://share.sph.umich.edu/1000genomes/fullProject/2012.03.14/}) that contains all genetic variants information. Then, two steps are used to find linkage disequilibrium SNPs >0.8 and located within 100kb of taSNPs. Firstly, we use {\tt vcftools} to convert the vcf file format to {\tt PLINK} format. Then we use {\tt PLINK} to call the LD taSNPs by specifying options that limit the linkage disequilibrium SNPs >0.8 (--ld-window-r2 0.8) and within 100kb of taSNP (--ld-window-kb 100). The detailed commands are listed below,\\
+\texttt{vcftools --vcf  vcf.file  --out plink.file --plink plink --file plink.file --r2 --inter-chr --ld-snp-list snps.txt --ld-window-r2 0.8 --ld-window-kb 100 --out output.file --noweb}\\
+Finally, we have 90700 SNP-trait associations and 78247 unique linkage disequilibrium trait-associated SNP. We also build linkage disequilibrium taSNP into another GRanges object   \texttt{taSNPLDDB}, which could be loaded into R console by typing \texttt{data(taSNPLDDB)}.\\
+The format of \texttt{taSNPLDDB} is,
 \begin{enumerate}
 \item seqnames: Chromosome number associated with rs number
-\item  SNP: SNP rs number
+\item  SNP\_ID: SNP rs number
 \item  ranges: Chromosomal position, in base pairs, associated with rs number
 \item  Trait: Description of disease/trait examined in the study
 \end{enumerate}
-<<>>=
-data(ASBLD)
-@
 
-\subsection{Obtain all SNPs from CEU population}
-We obtain all identified SNPs from European population from HapMap project. They could serve as background SNPs
-when performing hypothesis testing. The format of background SNPs are,
+
+\subsection{Obtain SNPs from HapMap}
+We download all genotype files in CEU population from the site,
+(\url{http://hapmap.ncbi.nlm.nih.gov/downloads/genotypes/latest/forward/non-redundant/ })	
+The site contains merged phase I+II and III HapMap genotype files. We treat all alleles in the genotype files as SNPs for CEU population, which are expressed in the forward strand relative to the reference genome sequence. There are totally 4,029,840 variants excluding variants on Y chromosome, which could serve as background in hypothesis testing. Since all genotype files are in text format, we simply include all SNPs in auto chromosome and chromosome X into package built-in GRanges subject \texttt{CEU}.\\
+The format of \texttt{CEU} is,
 \begin{enumerate}
 \item seqnames: Chromosome number associated with rs number
-\item  SNP: SNP rs number
+\item  SNP\_ID: SNP rs number
 \item  ranges: Chromosomal position, in base pairs, associated with rs number
 \end{enumerate}
-<<>>=
-data(CEU)
-@
 
 
 \section{Using {\tt traseR}}
 To assess the enrichment level of trait-associated SNPs in given genomic interval(s) using {\tt traseR}, one needs to
 follow the simple steps below.
 \begin{enumerate}
-\item Collect the trait-associated SNPs in particular data format
-\item Query a given a set of genomic intervals against all the trait-associated SNPs in the collection, perform statistical analyses
+\item Prepare the genomic intervals in data frame format with column names {\tt chr},{\tt start},{\tt end}
+\item Query a given a set of genomic interval(s) against all the taSNPs in the collection, perform statistical analyses
 \item Explore genes/SNPs of particular interest
 \end{enumerate}
 
 
+\subsection{Background selection}
+\subsubsection{Whole genome}
+The assumption is each nucleotide could be possibly be the taSNP. Based on the assumption. With the number of taSNPs inside and outside the genomic interval(s), the number of nucleotides inside and outside of the genomic interval(s), we could classify all nucleotides based on a nucleotide is taSNP or not and a nucleotide is in genomic intervals or not.
+
+\subsubsection{All SNPs}
+The assumption is each SNP could be possibly be the taSNP. Based on the assumption. With the number of taSNPs inside and outside the genomic interval(s), the non-taSNPs inside and outside of the genomic interval(s), we could classify all SNPs based on a SNP is taSNP or not and a SNP is in genomic intervals or not.
+
 \subsection{Hypothesis testing}
-{\tt traseR} provides differential hypothesis testing methods in core function {\tt traseR}, together with other functions for exploring and visualizing the results. The acceptable file format for  {\tt traseR} are bed format with the first three columns as chromosome, genomic start position and genomic end position. {\tt traseR} also offers either using the whole genome or SNPs as the background for hypothesis testing. 
+{\tt traseR} provides differential hypothesis testing methods in core function {\tt traseR}, together with other functions for exploring and visualizing the results. The genomic interval(s) could be a data frame with three columns as {\tt chr}(chromosome), {\tt start}(genomic start position) and {\tt end}(genomic end position). {\tt traseR} also offers either using the whole genome or all SNPs as the background for hypothesis testing. 
 If using whole genome as background, the command line is:
 <<eval=FALSE>>=
-x=traseR(snpdb,region,rankby="pvalue",test.method="binomial",alternative ="greater")
+x=traseR(snpdb=taSNPDB,region=Tcell)
+print(x)
 @
 If using all SNPs as background, the command line is:
 <<eval=FALSE>>=
-x=traseR(snpdb,region,snpdb.bg,rankby="pvalue",test.method="binomial",alternative ="greater")
+x=traseR(snpdb=taSNPLDDB,region=Tcell)
 @
-For the above commands, {\tt region} is the data frame after importing the bed file; {\tt snpdb} is the trait-associated SNPs or  LD SNPs; {\tt snpdb.bg} is a background SNPs;  If {\tt rankby} is set as "pvalue", all traits will be sorted by p-value in increasing order; if{\tt rankly} is set as "odds.ratio", all traits will be sorted by odds ratio in decreasing order. There are four options for {\tt test.method} including "chisq","fisher","binomial" to perform ${\chi}^2$ test, Fisher's exact test, binomial test respectively. If {\tt alternative} is set to "greater", {\tt trader} will perform hypothesis testing on whether genomic intervals are enriched of trait-associated SNPs than the background; If {\tt alternative} is set to "less",{\tt traseR} will perform hypothesis testing on whether genomic intervals are depleted of trait-associated SNPs than the background.
+For the above commands, {\tt region} is the data frame; {\tt snpdb} is taSNPs; {\tt snpdb.bg} is a background non-taSNPs;  If {\tt rankby} is set as "pvalue", all traits will be sorted by p-value in increasing order; if{\tt rankby} is set as "odds.ratio", all traits will be sorted by odds ratio in decreasing order. There are four options for {\tt test.method} including "binomial", "chisq", "fisher", and "nonparametric"to perform binomial test, ${\chi}^2$ test, Fisher's exact test and nonparametric respectively. If {\tt alternative} is set to "greater", {\tt trader} will perform hypothesis testing on whether genomic intervals are enriched of taSNPs than the background; If {\tt alternative} is set to "less",{\tt traseR} will perform hypothesis testing on whether genomic intervals are depleted of taSNPs than the background.
 %
-To test whether there exists difference between enrichment level of trait-associated SNPs in genomic intervals and in the whole genome background, the most straightforward approach is to construct contingency table and perform statistical testing on the table. With the number of trait-associated SNPs inside the genomic intervals and across the whole genome, the size of the genomic intervals and human genome size in base pair, we could classify all nucleotides into two categories: a nucleotide is trait-associated SNP or not and a nucleotide is in genomic intervals or not, based on which we could construct the 2 by 2 contingency table. Then, we could perform ${\chi}^2$ test on the table to assess the enrichment level of trait-associated SNPs. Based on the contingency table, when assuming the number of trait-associated SNPs in genomic intervals follows hypergeometric distribution, we could also use Fisher exact test to calculate the probability of possibly more trait-associated SNPs than the observing SNP number inside the genomic intervals compared to the whole genome as background. Another approach to carry out hypothesis testing is binomial test that assumes the probability of observing a single nucleotide being a trait-associated SNP is the same in genomic intervals as in the whole genome. Therefore, the probability of observing a single nucleotide being a trait-associated SNP in genomic intervals could be estimated by using total number of trait-associated SNPs divided by the genome size. Thus, based on the estimated probability, we could calculate how more likely the number of trait-associated SNPs is larger than the observed SNP number inside the genomic intervals.
+
+\subsubsection{${\chi}^2$  and Fisher's exact test}
+Based on which background we choose, we could construct the 2 by 2 contingency table. then, we could perform ${\chi}^2$ test on the table to assess the goodness of fit of the distribution of taSNPs inside and outside of genomic intervals(s). We could also assume taSNPs in genomic intervals follows hypergeometric distribution and could calculate the p-value by using Fisher's exact test.
+
+\subsubsection{Binomial test}
+The assumption is the probability of observing a single nucleotide/SNP being a taSNP is the same inside and outside of genomic intervals. The probability of observing a single nucleotide/SNPs being a taSNP in genomic intervals could be estimated by using total number of taSNPs divided by the genome size/All SNPs. Then corresponding p-value could be calculated by using binomial test.
+
+\subsubsection{Nonparametric Test}
+Instead of enforcing any assumption, the control genomic interval(s) are generated by shuffling the genomic intervals randomly $N$ times and overlap with taSNPs in each time. Then we could calculate the empirical p-value directly by counting how many taSNP hits larger/smaller than the observed taSNP hits.
+
 
 \subsection{Example}
-To further illustrate  the usage of {\tt traseR}  R package, we download H3K4me1 peak regions in peripheral blood T cell from Roadmap Epigenomics. Those peak regions are deemed the genomic intervals. Then we calculate the enrichment-level of trait-associated SNPs in the peak regions. Since the degree of enrichment level is measured by p-value, we could rank traits based on p-value in an increasing order. We choose binomial test are the option for {\tt test.method}.
-If using trait-associated SNPs and whole genome as background,
+To further illustrate the usage of {\tt traseR}  R package, we download H3K4me1 peak regions in peripheral blood T cell from Roadmap Epigenomics. Those peak regions are deemed the genomic intervals. Since the degree of enrichment level is measured by p-value, we could rank traits based on p-value in an increasing order. We choose binomial test are the default option for {\tt test.method}, use whole genome as background and over-enrichment as hypothesis testing direction.
 <<>>=
+library(traseR)
+data(taSNPDB)
 data(Tcell)
-x=traseR(ASB,Tcell,rankby="pvalue",test.method="binomial",alternative ="greater")
+x=traseR(taSNPDB,Tcell,trait.threshold=0)
 print(x)
 @
-%%%%
-If using all SNPs from CEU population as background,
-<<>>=
-x=traseR(ASB,Tcell,CEU,rankby="pvalue",test.method="binomial",alternative ="greater")
-print(x)
-@
-%%%%%
-If using LD SNPs of  trait-associated SNPs
-<<>>=
-x=traseR(ASBLD,Tcell,CEU,rankby="pvalue",test.method="binomial",alternative ="greater")
-print(x)
-@
+
 
 \subsection{Exploratory and visualization functions}
 Plot the distribution of SNP functional class
-<< >>=
-plotContext(snpdb=ASB,region=Tcell,keyword="Autoimmune")
+<< fig=TRUE>>=
+plotContext(snpdb=taSNPDB,region=Tcell,keyword="Autoimmune")
 @
 
 %%\begin{figure}[h!]
@@ -161,8 +154,8 @@ plotContext(snpdb=ASB,region=Tcell,keyword="Autoimmune")
 %%\end{figure}
 %%
 Plot the distribution of p-value of trait-associated SNPs
-<<>>=
-plotPvalue(snpdb=ASB,region=Tcell,keyword="autoimmune",plot.type="densityplot")
+<<fig=TRUE>>=
+plotPvalue(snpdb=taSNPDB,region=Tcell,keyword="autoimmune",plot.type="densityplot")
 @
 %%\begin{figure}[h!]
 %%\centering
@@ -172,8 +165,8 @@ plotPvalue(snpdb=ASB,region=Tcell,keyword="autoimmune",plot.type="densityplot")
 %%
 
 Plot SNPs or genes given genomic interval
-<<>>=
-plotInterval(snpdb=ASB,data.frame(chr="chrX",start=152633780,end=152737085))
+<<fig=TRUE>>=
+plotInterval(snpdb=taSNPDB,data.frame(chr="chrX",start=152633780,end=152737085))
 @
 %%\begin{figure}[h!]
 %%\centering
@@ -184,26 +177,26 @@ plotInterval(snpdb=ASB,data.frame(chr="chrX",start=152633780,end=152737085))
 
 Query trait-associated SNPs by key word,
 <<>>=
-x=queryKeyword(snpdb=ASB,region=Tcell,keyword="autoimmune",returnby="SNP")
+x=queryKeyword(snpdb=taSNPDB,region=Tcell,keyword="autoimmune",returnby="SNP")
 head(x)
 @
 %%
 
 Query trait-associated SNPs by gene name,
 <<>>=
-x=queryGene(snpdb=ASB,genes=c("AGRN","UBE2J2","SSU72"))
+x=queryGene(snpdb=taSNPDB,genes=c("AGRN","UBE2J2","SSU72"))
 x
 @
 %%
 
 Query trait-associated SNPs by SNP name,
 <<>>=
-x=querySNP(snpdb=ASB,snpid=c("rs3766178","rs880051"))
+x=querySNP(snpdb=taSNPDB,snpid=c("rs3766178","rs880051"))
 x
 @
 
 \section{Conclusion}
-{\tt traseR} provides methods to assess the enrichment level of trait-associated SNPs
+{\tt traseR} provides methods to assess the enrichment level of taSNPs
 in a given sets of genomic intervals. Moreover, it provides other functionalities to 
 explore and visualize the results.
 

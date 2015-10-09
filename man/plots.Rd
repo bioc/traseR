@@ -37,7 +37,7 @@ A data frame, which is genomic intervals with three columns, chromosome, genomic
   \item{keyword}{
 The keyword is used when specific trait is of interest. If \code{keyword} is specified, only the SNPs associated to the trait are used for analyses. Otherwise, all traits will be analyzed.
 }
-  \item{snpid}{SNP name}
+  \item{snpid}{SNP rs number}
   \item{gene}{Gene name}
   \item{pvalue}{
 SNPs with p-value less than this threshold are used for analyses.
@@ -64,11 +64,11 @@ SNPs with p-value less than this threshold are used for analyses.
 
 \examples{
 	
-	data(ASB)
-	plotContext(snpdb=ASB,keyword="Autoimmune")
-	plotGene(snpdb=ASB,gene="ZFP92",ext=50000)
-	plotSNP(snpdb=ASB,snpid="rs766420",ext=50000)
-	plotInterval(snpdb=ASB,data.frame(chr="chrX",start=152633780,end=152737085))
+	data(taSNPDB)
+	plotContext(snpdb= taSNPDB,keyword="Autoimmune")
+	plotGene(snpdb= taSNPDB,gene="ZFP92",ext=50000)
+	plotSNP(snpdb= taSNPDB,snpid="rs766420",ext=50000)
+	plotInterval(snpdb= taSNPDB,data.frame(chr="chrX",start=152633780,end=152737085))
 }
 
 
