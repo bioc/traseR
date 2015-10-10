@@ -10,7 +10,7 @@ Perform GWAS trait-associated SNP enrichment analyses in genomic intervals using
 traseR(snpdb, region, snpdb.bg=NULL, keyword = NULL, rankby = c("pvalue", "odds.ratio"), 
 test.method = c("binomial", "fisher","chisq", "nonparametric"), alternative = c("greater", "less", "two.sided"), 
 ntimes=100,nbatch=1,
-trait.threshold = 10, pvalue = 1e-3)
+trait.threshold = 0, pvalue = 1e-3)
 }
 
 \arguments{

@@ -8,13 +8,14 @@
 }
 
 \usage{
-	\method{print}{traseR}(x,isTopK=FALSE,topK=10,...)
+	\method{print}{traseR}(x,isTopK=FALSE,topK=10,trait.threshold=10,...)
 }
 
 \arguments{
 	\item{x}{Object returned from \code{traseR}}
 	\item{isTopK}{If isTopK is TRUE, topK traits are printed; otherwise, traits with p-value below Bonferroni correction threshold are printed. Default is FALSE.}
 	\item{topK}{Top K traits are printed. Default is 10.}
+	\item{trait.threshold}{Traits above this threshold are reported. Default is 10.}
   	\item{\dots}{Other parameters to \code{print}}
 }
 

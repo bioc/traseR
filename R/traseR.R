@@ -59,7 +59,7 @@ traseR<-function(snpdb,region,snpdb.bg=NULL,keyword=NULL,
 	test.method=c("binomial","fisher","chisq","nonparametric"),
 	alternative = c("greater","less","two.sided"),
 	ntimes=100, nbatch=1,
-	trait.threshold=10,pvalue=1e-3){
+	trait.threshold=0,pvalue=1e-3){
 	
 	test.method=match.arg(test.method)
 	alternative=match.arg(alternative)
@@ -154,18 +154,20 @@ traseR<-function(snpdb,region,snpdb.bg=NULL,keyword=NULL,
 	
 	### if it is nonparametric test
 	if(test.method=="nonparametric"){
-		len.order=seqlength[match(as.matrix(seqnames(region)),seqlevel)]
+		len.order=seqlength[(match(seqnames(region),seqlevel))@values]
 		len.order=rep(len.order,ntimes)
-		rchr=rep(as.matrix(seqnames(region)),ntimes)
+		rchr=rep(seqnames(region),ntimes)
 		region.width=end(region)-start(region)
 		region.width=rep(region.width,ntimes)
 		for(i in seq_len(nbatch)){
 			rstart=floor((len.order-region.width)*runif(length(len.order)))
 			rend=rstart+region.width		
 			region.permute=GRanges(seqnames = Rle(rchr), ranges = IRanges(start=rstart,end=rend))
+			o=findOverlaps(region,region.permute)
+			region.permute=region.permute[-o@subjectHits]
 			o=findOverlaps(region.permute,snp)
 			for(j in seq_len(ntimes)){
-				booleans[[(i-1)*ntimes+j]]=o@queryhits<=j*nregion & o@queryhits>=(j-1)*nregion
+				booleans[[(i-1)*ntimes+j]]=o@queryHits<=j*nregion & o@queryHits>=(j-1)*nregion
 				crit[(i-1)*ntimes+j]=length(unique(o@subjectHits[booleans[[(i-1)*ntimes+j]]]))
 			}
 			olist[[i]]=o
@@ -185,6 +187,7 @@ traseR<-function(snpdb,region,snpdb.bg=NULL,keyword=NULL,
 		colnames(tb.all)=c("Trait","p.value","odds.ratio","taSNP.hits","taSNP.num")
 		rownames(tb.all)=NULL
 		for(i in seq_len(ntraits)){
+			if(i%%10==0) message(i," traits have been tested!")
 			hits[i]=sum(tt$"Trait"==traits[i])
 			snpnums[i]=sum(snp$"Trait"==traits[i])
 			params$nsnp=snpnums[i]
@@ -220,6 +223,7 @@ traseR<-function(snpdb,region,snpdb.bg=NULL,keyword=NULL,
 		
 		### trait-specific SNP enrichment test
 		for(i in seq_len(ntraits)){
+			if(i%%10==0) message(i," traits have been tested!")
 			hits[i]=sum(tt$"Trait"==traits[i])
 			snpnums[i]=sum(snp$"Trait"==traits[i])
 			params$nsnp1=snpnums[i]
@@ -260,7 +264,7 @@ traseR<-function(snpdb,region,snpdb.bg=NULL,keyword=NULL,
 ### print the overall SNP enrichment 
 ### print the trait-specific SNP enrichment above bonferroni correction threshold
 
-print.traseR<-function(x,isTopK=FALSE,topK=10,...){
+print.traseR<-function(x,isTopK=FALSE,topK=10,trait.threshold=10,...){
 	message("There are ",x$ntraits," traits in the test.")
 	message("The overall functional SNP enrichment test results are:")
 	print(x$tb.all)
@@ -268,7 +272,7 @@ print.traseR<-function(x,isTopK=FALSE,topK=10,...){
 	if(isTopK){
 		print(x$tb[seq_len(topK),])
 	}else{
-		print(x$tb[x$tb$p.value<0.05/x$ntraits,])
+		print(x$tb[x$tb$p.value<0.05/x$ntraits & x$tb$taSNP.num>trait.threshold,])
 	}
 }
 
