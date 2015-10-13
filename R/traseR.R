@@ -32,8 +32,8 @@ enrichTest<-function(params,flag){
 				a=binom.test(params$hits,params$region.size,
 					p=params$nsnp/params$genome.size,alternative=params$alternative)
 			}else{
-				a=binom.test(params$hits1,params$nsnp1,
-					p=(params$hits1+params$hits2)/(params$nsnp1+params$nsnp2),alternative=params$alternative)
+				a=binom.test(params$hits1+1, params$hits1+params$hits2+1,
+					p=params$nsnp1/(params$nsnp1+params$nsnp2),alternative=params$alternative)
 			}
 			pvalue=a$p.value
 		}else if(params$test.method=="fisher"){
