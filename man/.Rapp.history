@@ -1,0 +1,5 @@
+rm(list=ls())
+getwd()
+rm(list=ls())
+library(traseR)
+getwd()
