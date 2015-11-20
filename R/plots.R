@@ -195,7 +195,7 @@ plotGene<-function(snpdb,gene,ext=10000){
 	}
 	
 	plot(0,xlim=c(min.pos, max.pos),ylim=c(0,maxp),xlab="", ylab="", axes=FALSE)
-	mtext(paste("Chr",gene.loci$seqnames, " position (bp)", sep=""), side=1, line=2.5)
+	mtext(paste(gene.loci$seqnames, " position (bp)", sep=""), side=1, line=2.5)
 	axis(1, at=c(min.pos,center.pos,max.pos), labels=c(min.pos,center.pos,max.pos), las=1) 
 	axis(2, at=seq(0,maxp,2), labels=seq(0,maxp,2), las=1) 
 	mtext("-log10Pvalue", side=2, line=2)
@@ -330,7 +330,7 @@ plotInterval<-function(snpdb,interval,ext=10000){
 	}
 	
 	plot(0,xlim=c(min.pos, max.pos),ylim=c(0,maxp),xlab="", ylab="", axes=FALSE)
-	mtext(paste("Chr",as.character(seqnames(interval)), " position (bp)", sep=""), side=1, line=2.5)
+	mtext(paste(as.character(seqnames(interval)), " position (bp)", sep=""), side=1, line=2.5)
 	axis(1, at=c(min.pos,center.pos,max.pos), labels=c(min.pos,center.pos,max.pos), las=1) 
 	axis(2, at=seq(0,maxp,2), labels=seq(0,maxp,2), las=1) 
 	mtext("-log10Pvalue", side=2, line=2)

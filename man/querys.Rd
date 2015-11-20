@@ -55,11 +55,11 @@ SNPs with p-value less than this threshold are used for analyses.
 
 \examples{
 	
-	data(taSNPDB)
+	data(taSNP)
 	data(Tcell)
-	x=queryKeyword(snpdb=taSNPDB,region=Tcell,keyword="Autoimmune",returnby="SNP_ID")
-	x=queryGene(snpdb=taSNPDB,genes=c("AGRN","UBE2J2","SSU72"))
-	x=querySNP(snpdb=taSNPDB,snpid=c("rs3766178","rs880051"))
+	x=queryKeyword(snpdb=taSNP,region=Tcell,keyword="Autoimmune",returnby="SNP_ID")
+	x=queryGene(snpdb=taSNP,genes=c("AGRN","UBE2J2","SSU72"))
+	x=querySNP(snpdb=taSNP,snpid=c("rs3766178","rs880051"))
 	
 }
 

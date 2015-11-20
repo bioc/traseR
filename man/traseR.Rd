@@ -10,7 +10,7 @@ Perform GWAS trait-associated SNP enrichment analyses in genomic intervals using
 traseR(snpdb, region, snpdb.bg=NULL, keyword = NULL, rankby = c("pvalue", "odds.ratio"), 
 test.method = c("binomial", "fisher","chisq", "nonparametric"), alternative = c("greater", "less", "two.sided"), 
 ntimes=100,nbatch=1,
-trait.threshold = 0, pvalue = 1e-3)
+trait.threshold = 0, traitclass.threshold=0, pvalue = 1e-3)
 }
 
 \arguments{
@@ -46,18 +46,23 @@ The number of batches. The product of \code{ntimes} and \code{nbatch} is the tot
   \item{trait.threshold}{
 Test traits with number of SNPs more than the threshold.
 }
+	\item{traitclass.threshold}{
+Test trait class with number of SNPs more than the threshold.
+}
   \item{pvalue}{
 SNPs with p-value less than this threshold are used for analyses.
 }
 }
 \details{
-Return a list that contains two data frames and one integer. One data frame \code{tb.all} contains the results of 
+Return a list that contains three data frames. One data frame \code{tb.all} contains the results of 
 enrichment analyses for all trait-associated SNPs in genomic intervals.
-Another data frame \code{tb} contains the results of enrichment analyses for each trait-associated SNPs
-in gneomic intervals separately. One integer indicates how many traits are analyzed.
+Another data frame \code{tb1} contains the results of enrichment analyses for each trait-associated SNPs
+in genomic intervals separately.
+Another data frame \code{tb2} contains the results of enrichment analyses for each trait-class-associated SNPs
+in genomic intervals separately.
 }
 \value{
-The data frame \code{tb} has columns,
+The data frame \code{tb1} has columns,
   \item{Trait }{Name of trait}
   \item{p.value }{P-value calculated from hypothesis testing}
   \item{q.value}{Adjusted p-value from multiple testing using FDR correction}
@@ -75,9 +80,9 @@ Li Chen <li.chen@emory.edu>, Zhaohui S.Qin<zhaohui.qin@emory.edu>
 	print.traseR
 }
 \examples{
-	data(taSNPDB)
+	data(taSNP)
 	data(Tcell)
-	x=traseR(snpdb=taSNPDB,region=Tcell)
+	x=traseR(snpdb=taSNP,region=Tcell)
 	print(x)
 }
 

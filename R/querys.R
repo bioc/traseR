@@ -7,7 +7,7 @@ queryKeyword<-function(snpdb,region=NULL,keyword=NULL,returnby=c("SNP_ID","trait
 	returnby=match.arg(returnby)
 	snpdb=snpdb[snpdb$p.value<=pvalue]
 	snp=unique(as.data.frame(snpdb[,c("SNP_ID","p.value","Trait")]))
-	snp.meta=snp[,setdiff(colnames(snp),c("seqnames","start","end","strand","width"))]
+	snp.meta=snp[,setdiff(colnames(snp),c("seqnames","start","end","strand","width","Trait_Class"))]
 	snp=makeGRangesFromDataFrame(snp[,c("seqnames","start","end","strand")])
 	mcols(snp)=snp.meta
 		
@@ -21,7 +21,6 @@ queryKeyword<-function(snpdb,region=NULL,keyword=NULL,returnby=c("SNP_ID","trait
 		}
 		seqlevel=c(paste("chr",1:22,sep=""),"chrX")
 		region=region[!is.na(match(seqnames(region),seqlevel))]
-		end(snp)=end(snp)+1
 		o=findOverlaps(region,snp)
 		if(length(o@subjectHits)==0){
 			stop("No SNP overlapped with the query region!")
@@ -129,7 +128,6 @@ querySNP<-function(snpdb,snpid,region=NULL){
 		}
 		seqlevel=c(paste("chr",1:22,sep=""),"chrX")
 		region=region[!is.na(match(seqnames(region),seqlevel))]
-		end(snp)=end(snp)+1
 		o=findOverlaps(region,snp)
 		if(length(o@subjectHits)==0){
 			stop("No SNP overlapped with the query region!")

@@ -1,19 +1,20 @@
-\name{taSNPDB}
-\alias{taSNPDB}
+\name{taSNP}
+\alias{taSNP}
 \title{
 trait-associated SNPs in dbGaP and NHGRI downloaded from Association Results Browser
 }
 \description{
-A GRange object \code{taSNPDB} contains trait-associated SNPs from dbGaP and NHGRI downloaded from Association Results Browser.
+A GRange object \code{taSNP} contains trait-associated SNPs from dbGaP and NHGRI downloaded from Association Results Browser.
 }
 
 \usage{
-data(taSNPDB)
+data(taSNP)
 }
 
 \value{
-	The data frame \code{taSNPDB} contains the following columns
+	The data frame \code{taSNP} contains the following columns
 	\item{Trait}{Trait}
+	\item{Trait Class}{Trait class which is formed based on the phenotype tree. Close traits are grouped together to form one class}
 	\item{SNP_ID}{SNP rs number}
 	\item{p.value}{GWAS SNP p-value}
 	\item{seqnames}{Chromosome}

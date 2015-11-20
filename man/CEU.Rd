@@ -1,7 +1,7 @@
 \name{CEU}
 \alias{CEU}
 \title{
-Sampled SNPs from all SNPs of CEU population
+Sampled SNPs from all SNPs of CEU population in 1000 genome project
 }
 \description{
 A GRange object \code{CEU} contains 5\% of all SNPs from CEU by

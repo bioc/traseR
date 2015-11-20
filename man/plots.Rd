@@ -64,11 +64,11 @@ SNPs with p-value less than this threshold are used for analyses.
 
 \examples{
 	
-	data(taSNPDB)
-	plotContext(snpdb= taSNPDB,keyword="Autoimmune")
-	plotGene(snpdb= taSNPDB,gene="ZFP92",ext=50000)
-	plotSNP(snpdb= taSNPDB,snpid="rs766420",ext=50000)
-	plotInterval(snpdb= taSNPDB,data.frame(chr="chrX",start=152633780,end=152737085))
+	data(taSNP)
+	plotContext(snpdb= taSNP,keyword="Autoimmune")
+	plotGene(snpdb= taSNP,gene="ZFP92",ext=50000)
+	plotSNP(snpdb= taSNP,snpid="rs766420",ext=50000)
+	plotInterval(snpdb= taSNP,data.frame(chr="chrX",start=152633780,end=152737085))
 }
 
 

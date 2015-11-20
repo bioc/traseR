@@ -3,10 +3,7 @@
 %\VignetteEngine{utils::Sweave}
 
 \documentclass{article}
-<<style, eval=TRUE, echo=FALSE, results=tex>>=
-    BiocStyle::latex(use.unsrturl=FALSE)
-@
-
+\RequirePackage{/Library/Frameworks/R.framework/Versions/3.2/Resources/library/BiocStyle/resources/latex/Bioconductor}
 \newcommand{\exitem}[3]
 {\item \texttt{\textbackslash#1\{#2\}} #3 \csname#1\endcsname{#2}.}
 
@@ -109,19 +106,25 @@ The assumption is each SNP could possibly be the taSNP. Based on the assumption,
 \subsection{Hypothesis testing}
 {\tt traseR} provides differential hypothesis testing methods in core function {\tt traseR}, together with other functions for exploring and visualizing the results. The genomic interval(s) could be a data frame with three columns as {\tt chr}(chromosome), {\tt start}(genomic start position) and {\tt end}(genomic end position) or a GRanges object. {\tt traseR} offers either including LD SNPs or excluding LD SNPs as the taSNPs and either using the whole genome or all SNPs as the background for hypothesis testing. \\
 If using whole genome as background, the command line is:
-<<eval=FALSE>>=
-x=traseR(snpdb=taSNP,region=Tcell)
-print(x)
-@
+\begin{Schunk}
+\begin{Sinput}
+> x=traseR(snpdb=taSNP,region=Tcell)
+> print(x)
+\end{Sinput}
+\end{Schunk}
 If including the LD SNPs, the command line is:
-<<eval=FALSE>>=
-x=traseR(snpdb=taSNPLD,region=Tcell)
-print(x)
-@
+\begin{Schunk}
+\begin{Sinput}
+> x=traseR(snpdb=taSNPLD,region=Tcell)
+> print(x)
+\end{Sinput}
+\end{Schunk}
 If using all SNPs as background, the command line is:
-<<eval=FALSE>>=
-x=traseR(snpdb=taSNP,region=Tcell,snpdb.bg=CEU)
-@
+\begin{Schunk}
+\begin{Sinput}
+> x=traseR(snpdb=taSNP,region=Tcell,snpdb.bg=CEU)
+\end{Sinput}
+\end{Schunk}
 For the above commands, {\tt region} is the data frame; {\tt snpdb} is taSNPs or including LD SNPs; {\tt snpdb.bg} is background SNPs;  If {\tt rankby} is set as "pvalue", all traits will be sorted by p-value in increasing order; if{\tt rankby} is set as "odds.ratio", all traits will be sorted by odds ratio in decreasing order. There are four options for {\tt test.method} including "binomial", "chisq", "fisher", and "nonparametric"to perform binomial test, ${\chi}^2$ test, Fisher's exact test and nonparametric respectively. If {\tt alternative} is set to "greater", {\tt traseR} will perform hypothesis testing on whether genomic intervals are enriched of taSNPs than the background; If {\tt alternative} is set to "less",{\tt traseR} will perform hypothesis testing on whether genomic intervals are depleted of taSNPs than the background.
 %
 
@@ -147,20 +150,71 @@ Depending on the characteristics of the test statistics, we suggest to choose ap
 
 \subsection{Example}
 To further illustrate the usage of {\tt traseR}  R package, we download H3K4me1 peak regions in peripheral blood T cell from Roadmap Epigenomics. Those peak regions are deemed the genomic intervals. Since the degree of enrichment level is measured by p-value, we could rank traits/trait classes based on p-value in an increasing order. We choose Binomial test are the default option for {\tt test.method}, use whole genome as background and over-enrichment as hypothesis testing direction.
-<<>>=
-library(traseR)
-data(taSNP)
-data(Tcell)
-x=traseR(taSNP,Tcell)
-print(x)
-@
+\begin{Schunk}
+\begin{Sinput}
+> library(traseR)
+> data(taSNP)
+> data(Tcell)
+> x=traseR(taSNP,Tcell)
+> print(x)
+\end{Sinput}
+\begin{Soutput}
+  Trait       p.value odds.ratio taSNP.hits taSNP.num
+1   All 3.788373e-233   2.134717       2625     30553
+                            Trait      p.value      q.value odds.ratio taSNP.hits
+70                Behcet Syndrome 4.400406e-23 2.521433e-20   6.306579         59
+176     Diabetes Mellitus, Type 1 1.704981e-11 4.884769e-09   5.045263         33
+352 Lupus Erythematosus, Systemic 6.159346e-09 1.176435e-06   3.902195         32
+52          Arthritis, Rheumatoid 1.442123e-07 2.065841e-05   5.126637         20
+392            Multiple Sclerosis 1.644125e-05 1.884167e-03   2.905210         26
+65            Autoimmune Diseases 5.201529e-05 4.967461e-03  15.892575          6
+    taSNP.num
+70        274
+176       185
+352       223
+52        112
+392       236
+65         15
+                           Trait_Class      p.value      q.value odds.ratio taSNP.hits
+17              Immune System Diseases 3.729169e-35 1.143835e-33   3.658860        155
+31 Skin and Connective Tissue Diseases 6.932335e-35 1.143835e-33   3.916319        142
+32             Stomatognathic Diseases 1.041455e-22 1.145601e-21   5.675922         63
+14                        Eye Diseases 3.479491e-18 2.870580e-17   3.313308         87
+11           Digestive System Diseases 4.362324e-14 2.879134e-13   3.040672         74
+7              Cardiovascular Diseases 3.008551e-11 1.654703e-10   1.602762        253
+13           Endocrine System Diseases 6.933337e-09 3.268573e-08   2.068149         89
+24  Nutritional and Metabolic Diseases 4.763509e-08 1.964948e-07   2.068673         79
+21            Musculoskeletal Diseases 3.118359e-05 1.143398e-04   2.716680         27
+23             Nervous System Diseases 5.549981e-05 1.831494e-04   1.495744        122
+16        Hemic and Lymphatic Diseases 1.649261e-04 4.947782e-04   3.596622         15
+22                           Neoplasms 3.372076e-04 9.273210e-04   1.580636         76
+30          Respiratory Tract Diseases 6.507770e-04 1.651972e-03   2.121839         29
+   taSNP.num
+17      1122
+31       970
+32       318
+14       689
+11       633
+7       3850
+13      1076
+24       956
+21       260
+23      1988
+16       115
+22      1181
+30       349
+\end{Soutput}
+\end{Schunk}
 
 
 \subsection{Exploratory and visualization functions}
 Plot the distribution of SNP functional class
-<< fig=TRUE>>=
-plotContext(snpdb=taSNP,region=Tcell,keyword="Autoimmune")
-@
+\begin{Schunk}
+\begin{Sinput}
+> plotContext(snpdb=taSNP,region=Tcell,keyword="Autoimmune")
+\end{Sinput}
+\end{Schunk}
+\includegraphics{traseR-006}
 
 %%\begin{figure}[h!]
 %%\centering
@@ -169,9 +223,12 @@ plotContext(snpdb=taSNP,region=Tcell,keyword="Autoimmune")
 %%\end{figure}
 %%
 Plot the distribution of p-value of trait-associated SNPs
-<<fig=TRUE>>=
-plotPvalue(snpdb=taSNP,region=Tcell,keyword="autoimmune",plot.type="densityplot")
-@
+\begin{Schunk}
+\begin{Sinput}
+> plotPvalue(snpdb=taSNP,region=Tcell,keyword="autoimmune",plot.type="densityplot")
+\end{Sinput}
+\end{Schunk}
+\includegraphics{traseR-007}
 %%\begin{figure}[h!]
 %%\centering
 %%\includegraphics[width=3in]{plotPvalue.pdf}
@@ -180,9 +237,12 @@ plotPvalue(snpdb=taSNP,region=Tcell,keyword="autoimmune",plot.type="densityplot"
 %%
 
 Plot SNPs or genes given genomic interval
-<<fig=TRUE>>=
-plotInterval(snpdb=taSNP,data.frame(chr="chrX",start=152633780,end=152737085))
-@
+\begin{Schunk}
+\begin{Sinput}
+> plotInterval(snpdb=taSNP,data.frame(chr="chrX",start=152633780,end=152737085))
+\end{Sinput}
+\end{Schunk}
+\includegraphics{traseR-008}
 %%\begin{figure}[h!]
 %%\centering
 %%\includegraphics[width=3in]{plotInterval.pdf}
@@ -191,24 +251,71 @@ plotInterval(snpdb=taSNP,data.frame(chr="chrX",start=152633780,end=152737085))
 %%
 
 Query trait-associated SNPs by key word,
-<<>>=
-x=queryKeyword(snpdb=taSNP,region=Tcell,keyword="autoimmune",returnby="SNP")
-head(x)
-@
+\begin{Schunk}
+\begin{Sinput}
+> x=queryKeyword(snpdb=taSNP,region=Tcell,keyword="autoimmune",returnby="SNP")
+> head(x)
+\end{Sinput}
+\begin{Soutput}
+         SNP_ID   Chr  Position Trait.num          Trait.name
+4343 rs11203203 chr21  43836186         1 Autoimmune Diseases
+4341  rs1876518  chr2  65608909         1 Autoimmune Diseases
+4348  rs1953126  chr9 123640500         1 Autoimmune Diseases
+4342  rs2298428 chr22  21982892         1 Autoimmune Diseases
+4345  rs7579944  chr2  30445026         1 Autoimmune Diseases
+4338   rs864537  chr1 167411384         1 Autoimmune Diseases
+\end{Soutput}
+\end{Schunk}
 %%
 
 Query trait-associated SNPs by gene name,
-<<>>=
-x=queryGene(snpdb=taSNP,genes=c("AGRN","UBE2J2","SSU72"))
-x
-@
+\begin{Schunk}
+\begin{Sinput}
+> x=queryGene(snpdb=taSNP,genes=c("AGRN","UBE2J2","SSU72"))
+> x
+\end{Sinput}
+\begin{Soutput}
+GRanges object with 3 ranges and 5 metadata columns:
+      seqnames             ranges strand | GENE_NAME Trait.num          Trait.name
+         <Rle>          <IRanges>  <Rle> |  <factor> <integer>            <factor>
+  [1]     chr1 [ 955502,  991491]      + |      AGRN         1     Body Mass Index
+  [2]     chr1 [1477052, 1510261]      - |     SSU72         1             Glucose
+  [3]     chr1 [1189291, 1209233]      - |    UBE2J2         1 Waist Circumference
+      taSNP.num taSNP.name
+      <integer>   <factor>
+  [1]         1  rs3934834
+  [2]         1   rs880051
+  [3]         1 rs11804831
+  -------
+  seqinfo: 23 sequences from an unspecified genome; no seqlengths
+\end{Soutput}
+\end{Schunk}
 %%
 
 Query trait-associated SNPs by SNP name,
-<<>>=
-x=querySNP(snpdb=taSNP,snpid=c("rs3766178","rs880051"))
-x
-@
+\begin{Schunk}
+\begin{Sinput}
+> x=querySNP(snpdb=taSNP,snpid=c("rs3766178","rs880051"))
+> x
+\end{Sinput}
+\begin{Soutput}
+GRanges object with 2 ranges and 9 metadata columns:
+        seqnames             ranges strand |       Trait      SNP_ID   p.value
+           <Rle>          <IRanges>  <Rle> | <character> <character> <numeric>
+  42234     chr1 [1478180, 1478180]      * |     Glucose   rs3766178  3.26e-05
+  42127     chr1 [1493727, 1493727]      * |     Glucose    rs880051  6.44e-05
+            Context   GENE_NAME GENE_START  GENE_END GENE_STRAND
+        <character> <character>  <integer> <integer> <character>
+  42234      Intron       SSU72    1477052   1510261           -
+  42127      Intron       SSU72    1477052   1510261           -
+                         Trait_Class
+                         <character>
+  42234 Chemicals and Drugs Category
+  42127 Chemicals and Drugs Category
+  -------
+  seqinfo: 23 sequences from an unspecified genome; no seqlengths
+\end{Soutput}
+\end{Schunk}
 
 \section{Conclusion}
 {\tt traseR} provides methods to assess the enrichment level of taSNPs
@@ -216,9 +323,38 @@ in a given sets of genomic intervals. Moreover, it provides other functionalitie
 explore and visualize the results.
 
 \section{Session Info}
-<<echo=TRUE>>=
-sessionInfo()
-@
+\begin{Schunk}
+\begin{Sinput}
+> sessionInfo()
+\end{Sinput}
+\begin{Soutput}
+R version 3.2.1 (2015-06-18)
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+Running under: OS X 10.9.5 (Mavericks)
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] stats4    parallel  stats     graphics  grDevices utils     datasets  methods  
+[9] base     
+
+other attached packages:
+ [1] traseR_1.1.1                      BSgenome.Hsapiens.UCSC.hg19_1.4.0
+ [3] BSgenome_1.36.2                   rtracklayer_1.30.0               
+ [5] Biostrings_2.38.0                 XVector_0.10.0                   
+ [7] GenomicRanges_1.22.0              GenomeInfoDb_1.6.0               
+ [9] IRanges_2.4.0                     S4Vectors_0.8.0                  
+[11] BiocGenerics_0.16.0              
+
+loaded via a namespace (and not attached):
+ [1] XML_3.98-1.3               Rsamtools_1.22.0           GenomicAlignments_1.6.0   
+ [4] bitops_1.0-6               futile.options_1.0.0       zlibbioc_1.14.0           
+ [7] futile.logger_1.4.1        BiocStyle_1.6.0            lambda.r_1.1.7            
+[10] BiocParallel_1.2.9         tools_3.2.1                Biobase_2.28.0            
+[13] RCurl_1.95-4.7             SummarizedExperiment_1.0.0
+\end{Soutput}
+\end{Schunk}
 
 \begin{thebibliography}{99}
 
