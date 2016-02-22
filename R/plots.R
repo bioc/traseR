@@ -36,9 +36,9 @@ plotContext<-function(snpdb,region=NULL,keyword=NULL,pvalue=1e-3){
 		region=region[!is.na(match(seqnames(region),seqlevel))]
 		end(snp)=end(snp)+1
 		o=findOverlaps(region,snp)
-		if(length(o@subjectHits)==0)
+		if(length(subjectHits(o))==0)
 			stop("No SNP overlapped with the query region!")
-		a=snp$Context[unique(o@subjectHits)]
+		a=snp$Context[unique(subjectHits(o))]
 	}
 	a=table(a)
 	pa=round(a/sum(a)*100)
@@ -90,9 +90,9 @@ plotPvalue<-function(snpdb,region=NULL,keyword=NULL,plot.type=c("densityplot","b
 			region=region[!is.na(match(seqnames(region),seqlevel))]
 			end(snp)=end(snp)+1
 			o=findOverlaps(region,snp)
-			if(length(o@subjectHits)==0)
+			if(length(subjectHits(o))==0)
 				stop("No SNP overlapped with genomic intervals!")
-			pval2=unique(allpval[o@subjectHits])		
+			pval2=unique(allpval[subjectHits(o)])		
 			if(plot.type=="boxplot"){
 				plotdata=list(allpval,pval1,pval2)
 				names(plotdata)=c("SNP(all)","SNP(keyword)","SNP(overlapped)")
@@ -132,9 +132,9 @@ plotPvalue<-function(snpdb,region=NULL,keyword=NULL,plot.type=c("densityplot","b
 			region=region[!is.na(match(seqnames(region),seqlevel))]
 			end(snp)=end(snp)+1
 			o=findOverlaps(region,snp)
-			if(length(o@subjectHits)==0)
+			if(length(subjectHits(o))==0)
 				stop("No SNP overlapped with the genomic intervals!")
-			pval2=unique(allpval[o@subjectHits])	
+			pval2=unique(allpval[subjectHits(o)])	
 			if(plot.type=="boxplot"){
 				plotdata=list(allpval,pval2)
 				names(plotdata)=c("SNP(all)","SNP(Overlapped)")
@@ -305,14 +305,14 @@ plotInterval<-function(snpdb,interval,ext=10000){
 	interval=makeGRangesFromDataFrame(interval)
 	end(snpdb)=end(snpdb)+1
 	o=findOverlaps(interval,snpdb)
-	if(length(o@subjectHits)==0)
+	if(length(subjectHits(o))==0)
 		stop("The query region is not overlapped with any function SNP")
 	
-	snp=unique(as.data.frame(snpdb[unique(o@subjectHits),c("SNP_ID","p.value","Trait")]))
+	snp=unique(as.data.frame(snpdb[unique(subjectHits(o)),c("SNP_ID","p.value","Trait")]))
 	snp.meta=snp[,setdiff(colnames(snp),c("seqnames","start","end","strand","width"))]
 	snp=makeGRangesFromDataFrame(snp[,c("seqnames","start","end","strand")])
 	mcols(snp)=snp.meta
-	genes=snpdb[unique(o@subjectHits),c("GENE_NAME","GENE_START","GENE_END","GENE_STRAND")]	
+	genes=snpdb[unique(subjectHits(o)),c("GENE_NAME","GENE_START","GENE_END","GENE_STRAND")]	
 	genes=unique(as.data.frame(genes))
 	genes=genes[,setdiff(colnames(genes),c("start","end","strand","width"))]
 

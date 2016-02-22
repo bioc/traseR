@@ -22,10 +22,10 @@ queryKeyword<-function(snpdb,region=NULL,keyword=NULL,returnby=c("SNP_ID","trait
 		seqlevel=c(paste("chr",1:22,sep=""),"chrX")
 		region=region[!is.na(match(seqnames(region),seqlevel))]
 		o=findOverlaps(region,snp)
-		if(length(o@subjectHits)==0){
+		if(length(subjectHits(o))==0){
 			stop("No SNP overlapped with the query region!")
 		}else{
-			snp=unique(as.data.frame(snp[unique(o@subjectHits),c("SNP_ID","p.value","Trait")]))
+			snp=unique(as.data.frame(snp[unique(subjectHits(o)),c("SNP_ID","p.value","Trait")]))
 		}
 	}
 	
@@ -129,10 +129,10 @@ querySNP<-function(snpdb,snpid,region=NULL){
 		seqlevel=c(paste("chr",1:22,sep=""),"chrX")
 		region=region[!is.na(match(seqnames(region),seqlevel))]
 		o=findOverlaps(region,snp)
-		if(length(o@subjectHits)==0){
+		if(length(subjectHits(o))==0){
 			stop("No SNP overlapped with the query region!")
 		}else{
-			snp=snp[unique(o@subjectHits)]
+			snp=snp[unique(subjectHits(o))]
 		}
 	}
 	snp

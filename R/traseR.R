@@ -126,12 +126,12 @@ traseR<-function(snpdb,region,snpdb.bg=NULL,keyword=NULL,
 	snp=snp[!is.na(match(snp$Trait,traits))]
 	
 	o=findOverlaps(region,snp)	
-	allhits=length(unique(o@subjectHits))
+	allhits=length(unique(subjectHits(o)))
 	if(allhits==0){
 		stop("Overall SNPs are not overlapped with any genomic intervals!")
 	}
 	nsnp=length(unique(snp$SNP_ID))
-	tt=snp[unique(o@subjectHits)]
+	tt=snp[unique(subjectHits(o))]
 	ntraits=length(traits)
 	
 	
@@ -142,12 +142,12 @@ traseR<-function(snpdb,region,snpdb.bg=NULL,keyword=NULL,
 	snpclass=snpclass[!is.na(match(snpclass$Trait_Class,traitclass))]
 	
 	o=findOverlaps(region,snpclass)	
-	allhits=length(unique(o@subjectHits))
+	allhits=length(unique(subjectHits(o)))
 	if(allhits==0){
 		stop("Overall SNPs are not overlapped with any genomic intervals!")
 	}
 	nsnpclass=length(unique(snpclass$SNP_ID))
-	ttclass=snpclass[unique(o@subjectHits)]
+	ttclass=snpclass[unique(subjectHits(o))]
 	ntraitclass=length(traitclass)
 	
 	
@@ -162,7 +162,7 @@ traseR<-function(snpdb,region,snpdb.bg=NULL,keyword=NULL,
  		ind=match(snpdb.bg$SNP_ID,snp$SNP_ID)
 		snp.bg=unique(snpdb.bg[is.na(ind)])
 		o=findOverlaps(region,snp.bg)	
-		allhits.bg=length(unique(o@subjectHits))
+		allhits.bg=length(unique(subjectHits(o)))
 		nsnp.bg=length(unique(snp.bg$SNP_ID))
 	}
 
@@ -194,14 +194,14 @@ traseR<-function(snpdb,region,snpdb.bg=NULL,keyword=NULL,
 			rend=rstart+region.width		
 			region.permute=GRanges(seqnames = Rle(rchr), ranges = IRanges(start=rstart,end=rend))
 			o=findOverlaps(region,region.permute)
-			region.permute=region.permute[-o@subjectHits]
+			region.permute=region.permute[-subjectHits(o)]
 			o=findOverlaps(region.permute,snp)
 			oclass=findOverlaps(region.permute,snpclass)
 			for(j in seq_len(ntimes)){
-				booleans[[(i-1)*ntimes+j]]=o@queryHits<=j*nregion & o@queryHits>=(j-1)*nregion
-				crit[(i-1)*ntimes+j]=length(unique(o@subjectHits[booleans[[(i-1)*ntimes+j]]]))
-				booleans.class[[(i-1)*ntimes+j]]=oclass@queryHits<=j*nregion & oclass@queryHits>=(j-1)*nregion
-				crit.class[(i-1)*ntimes+j]=length(unique(oclass@subjectHits[booleans.class[[(i-1)*ntimes+j]]]))
+				booleans[[(i-1)*ntimes+j]]=queryHits(o)<=j*nregion & queryHits(o)>=(j-1)*nregion
+				crit[(i-1)*ntimes+j]=length(unique(subjectHits(o)[booleans[[(i-1)*ntimes+j]]]))
+				booleans.class[[(i-1)*ntimes+j]]=queryHits(oclass)<=j*nregion & queryHits(oclass)>=(j-1)*nregion
+				crit.class[(i-1)*ntimes+j]=length(unique(subjectHits(oclass)[booleans.class[[(i-1)*ntimes+j]]]))
 			}
 			olist[[i]]=o
 			olist.class[[i]]=oclass
@@ -233,7 +233,7 @@ traseR<-function(snpdb,region,snpdb.bg=NULL,keyword=NULL,
 			if(test.method=="nonparametric"){
 				for(j in seq_len(nbatch)){
 					for(k in seq_len(ntimes)){
-						crit[(j-1)*ntimes+k]=length(unique(  olist[[j]]@subjectHits[ booleans[[(j-1)*ntimes+k]] & snp$Trait[olist[[j]]@subjectHits]==traits[i] ]   ))
+						crit[(j-1)*ntimes+k]=length(unique(  subjectHits(olist[[j]])[ booleans[[(j-1)*ntimes+k]] & snp$Trait[subjectHits(olist[[j]])]==traits[i] ] ))
 					}
 				}
 				params$crit=crit
@@ -253,7 +253,7 @@ traseR<-function(snpdb,region,snpdb.bg=NULL,keyword=NULL,
 			if(test.method=="nonparametric"){
 				for(j in seq_len(nbatch)){
 					for(k in seq_len(ntimes)){
-						crit.class[(j-1)*ntimes+k]=length(unique(  olist.class[[j]]@subjectHits[ booleans.class[[(j-1)*ntimes+k]] & snpclass$Trait_Class[olist.class[[j]]@subjectHits]==traitclass[i] ]   ))
+						crit.class[(j-1)*ntimes+k]=length(unique(  subjectHits(olist.class[[j]])[ booleans.class[[(j-1)*ntimes+k]] & snpclass$Trait_Class[subjectHits(olist.class[[j]])]==traitclass[i] ]   ))
 					}
 				}
 				params$crit=crit.class
@@ -298,7 +298,7 @@ traseR<-function(snpdb,region,snpdb.bg=NULL,keyword=NULL,
 			if(test.method=="nonparametric"){
 				for(j in seq_len(nbatch)){
 					for(k in seq_len(ntimes)){
-						crit[(j-1)*ntimes+k]=length(unique(  olist[[j]]@subjectHits[ booleans[[(j-1)*ntimes+k]] & snp$Trait[olist[[j]]@subjectHits]==traits[i] ]   ))
+						crit[(j-1)*ntimes+k]=length(unique(  subjectHits(olist[[j]])[ booleans[[(j-1)*ntimes+k]] & snp$Trait[subjectHits(olist[[j]])]==traits[i] ]   ))
 					}
 				}
 				params$crit=crit
@@ -321,7 +321,7 @@ traseR<-function(snpdb,region,snpdb.bg=NULL,keyword=NULL,
 			if(test.method=="nonparametric"){
 				for(j in seq_len(nbatch)){
 					for(k in seq_len(ntimes)){
-						crit.class[(j-1)*ntimes+k]=length(unique(  olist.class[[j]]@subjectHits[ booleans.class[[(j-1)*ntimes+k]] & snpclass$Trait_Class[olist.class[[j]]@subjectHits]==traitclass[i] ]   ))
+						crit.class[(j-1)*ntimes+k]=length(unique(  subjectHits(olist.class[[j]])[ booleans.class[[(j-1)*ntimes+k]] & snpclass$Trait_Class[subjectHits(olist.class[[j]])]==traitclass[i] ]   ))
 					}
 				}
 				params$crit=crit.class
