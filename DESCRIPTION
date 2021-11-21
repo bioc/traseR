@@ -2,10 +2,10 @@ Package: traseR
 Type: Package
 Title: GWAS trait-associated SNP enrichment analyses in genomic
         intervals
-Version: 1.25.0
+Version: 1.25.1
 Depends: R (>= 3.2.0),GenomicRanges,IRanges,BSgenome.Hsapiens.UCSC.hg19
 Suggests: BiocStyle,RUnit, BiocGenerics
-Date: 2015-11-20
+Date: 2021-11-21
 Author: Li Chen, Zhaohui S.Qin
 Maintainer: li chen<li.chen@emory.edu>
 Description: traseR performs GWAS trait-associated SNP enrichment
